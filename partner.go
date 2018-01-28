@@ -2,7 +2,7 @@ package main
 
 import (
 	"bytes"
-	"c3m/common/lzjs"
+
 	"encoding/base64"
 	"encoding/json"
 	"io/ioutil"
@@ -10,6 +10,7 @@ import (
 
 	"github.com/tidusant/c3m-common/c3mcommon"
 	"github.com/tidusant/c3m-common/log"
+	"github.com/tidusant/c3m-common/lzjs"
 	"github.com/tidusant/c3m-common/mystring"
 	rpch "github.com/tidusant/chadmin-repo/cuahang"
 	"github.com/tidusant/chadmin-repo/models"
