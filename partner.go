@@ -6,7 +6,6 @@ import (
 	"encoding/base64"
 	"encoding/json"
 	"io/ioutil"
-	"os"
 
 	"github.com/tidusant/c3m-common/c3mcommon"
 	"github.com/tidusant/c3m-common/log"
@@ -195,7 +194,7 @@ func SubmitOrder(usex models.UserSession) string {
 	if err != nil {
 		// handle err
 	}
-	os.Setenv("HTTP_PROXY", "http://127.0.0.1:8888")
+	//os.Setenv("HTTP_PROXY", "http://127.0.0.1:8888")
 
 	req.Header.Set("Token", usex.Shop.Config.GHTKToken)
 	req.Header.Set("Content-Type", "application/json")
@@ -258,7 +257,7 @@ func PrintOrder(usex models.UserSession) string {
 	if err != nil {
 		// handle err
 	}
-	os.Setenv("HTTP_PROXY", "http://127.0.0.1:8888")
+	//os.Setenv("HTTP_PROXY", "http://127.0.0.1:8888")
 
 	req.Header.Set("Token", usex.Shop.Config.GHTKToken)
 	//req.Header.Set("Content-Type", "application/json")
@@ -312,7 +311,7 @@ func CancelOrder(usex models.UserSession) string {
 	if err != nil {
 		// handle err
 	}
-	os.Setenv("HTTP_PROXY", "http://127.0.0.1:8888")
+	//os.Setenv("HTTP_PROXY", "http://127.0.0.1:8888")
 
 	req.Header.Set("Token", usex.Shop.Config.GHTKToken)
 	//req.Header.Set("Content-Type", "application/json")
