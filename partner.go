@@ -134,22 +134,25 @@ func SubmitOrder(usex models.UserSession) string {
 		Quantity int     `json:"quantity"`
 	}
 	type OrderInfo struct {
-		ID           string `json:"id"`
-		PickName     string `json:"pick_name"`
-		PickAddress  string `json:"pick_address"`
-		PickProvince string `json:"pick_province"`
-		PickDistrict string `json:"pick_district"`
-		PickTel      string `json:"pick_tel"`
-		Tel          string `json:"tel"`
-		Name         string `json:"name"`
-		Address      string `json:"address"`
-		Province     string `json:"province"`
-		District     string `json:"district"`
-		IsFreeship   string `json:"is_freeship"`
-		PickDate     string `json:"pick_date"`
-		PickMoney    int    `json:"pick_money"`
-		Note         string `json:"note"`
-		Value        int    `json:"value"`
+		ID            string `json:"id"`
+		PickName      string `json:"pick_name"`
+		PickAddressID string `json:"pick_address_id"`
+		PickAddress   string `json:"pick_address"`
+		PickWard      string `json:"pick_ward"`
+		PickProvince  string `json:"pick_province"`
+		PickDistrict  string `json:"pick_district"`
+		PickTel       string `json:"pick_tel"`
+		Tel           string `json:"tel"`
+		Name          string `json:"name"`
+		Address       string `json:"address"`
+		Province      string `json:"province"`
+		District      string `json:"district"`
+		Ward          string `json:"ward"`
+		IsFreeship    string `json:"is_freeship"`
+		PickDate      string `json:"pick_date"`
+		PickMoney     int    `json:"pick_money"`
+		Note          string `json:"note"`
+		Value         int    `json:"value"`
 	}
 
 	type Payload struct {
@@ -165,13 +168,16 @@ func SubmitOrder(usex models.UserSession) string {
 	var myOrder OrderInfo
 	myOrder.ID = mystring.RandString(8)
 	myOrder.PickName = usex.Shop.Name
+	myOrder.PickAddressID = usex.Shop.Config.GHTKWareID
 	myOrder.PickAddress = usex.Shop.Config.Address
 	myOrder.PickProvince = usex.Shop.Config.Province
 	myOrder.PickDistrict = usex.Shop.Config.District
+	myOrder.PickWard = usex.Shop.Config.Ward
 	myOrder.PickTel = usex.Shop.Config.Tel
 	myOrder.Name = cus.Name
 	myOrder.Tel = cus.Phone
-	myOrder.Address = cus.Address + ", " + cus.Ward
+	myOrder.Address = cus.Address
+	myOrder.Ward = cus.Ward
 	myOrder.District = cus.District
 	myOrder.Province = cus.City
 	myOrder.IsFreeship = "1"
