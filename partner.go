@@ -177,7 +177,7 @@ func SubmitOrder(usex models.UserSession) string {
 	myOrder.IsFreeship = "1"
 	myOrder.PickMoney = order.Total
 	myOrder.Value = order.Total
-	myOrder.Note = "test"
+	myOrder.Note = order.Note
 
 	data := Payload{
 		Products: myProds,
