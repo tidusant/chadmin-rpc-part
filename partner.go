@@ -162,6 +162,7 @@ func SubmitOrder(usex models.UserSession) string {
 	var myProds []Product
 	for _, v := range order.Items {
 		title, _ := lzjs.DecompressFromBase64(v.Title)
+
 		prod := Product{title, 0.15 * float64(v.Num), v.Num}
 		myProds = append(myProds, prod)
 	}
