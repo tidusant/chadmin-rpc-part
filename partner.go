@@ -159,7 +159,7 @@ func SubmitOrder(usex models.UserSession) string {
 	var myProds []Product
 	for _, v := range order.Items {
 		title, _ := lzjs.DecompressFromBase64(v.Title)
-		prod := Product{title, 0.15, v.Num}
+		prod := Product{title, 0.15 * float64(v.Num), v.Num}
 		myProds = append(myProds, prod)
 	}
 	var myOrder OrderInfo
@@ -176,7 +176,7 @@ func SubmitOrder(usex models.UserSession) string {
 	myOrder.Province = cus.City
 	myOrder.IsFreeship = "1"
 	myOrder.PickMoney = order.Total
-	myOrder.Value = order.Total
+	myOrder.Value = 0
 	myOrder.Note = order.Note
 
 	data := Payload{
