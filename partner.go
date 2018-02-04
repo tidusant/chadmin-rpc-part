@@ -2,7 +2,6 @@ package main
 
 import (
 	"bytes"
-	"os"
 
 	"encoding/base64"
 	"encoding/json"
@@ -403,7 +402,7 @@ func ViewShipFee(usex models.UserSession) string {
 	querystr.Add("weight", strconv.Itoa(totalweight))
 	req.URL.RawQuery = querystr.Encode()
 
-	os.Setenv("HTTP_PROXY", "http://127.0.0.1:8888")
+	//os.Setenv("HTTP_PROXY", "http://127.0.0.1:8888")
 
 	req.Header.Set("Token", usex.Shop.Config.GHTKToken)
 	//req.Header.Set("Content-Type", "application/json")
