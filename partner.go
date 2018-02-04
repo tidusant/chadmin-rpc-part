@@ -43,11 +43,8 @@ type GhtkResp struct {
 	Fee struct {
 		Name         string `json:"name"`
 		Fee          int    `json:"fee"`
-		InsuranceFee string `json:"insurance_fee"`
+		InsuranceFee int    `json:"insurance_fee"`
 		DeliveryType string `json:"delivery_type"`
-		A            string `json:"a"`
-		Dt           string `json:"dt"`
-		Delivery     string `json:"delivery"`
 	} `json:"fee"`
 }
 
