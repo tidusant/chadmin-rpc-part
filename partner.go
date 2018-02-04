@@ -2,6 +2,7 @@ package main
 
 import (
 	"bytes"
+	"os"
 
 	"encoding/base64"
 	"encoding/json"
@@ -39,6 +40,15 @@ type GhtkResp struct {
 		EstimatedPickTime    string `json:"estimated_pick_time"`
 		EstimatedDeliverTime string `json:"estimated_deliver_time"`
 	} `json:"order"`
+	Fee struct {
+		Name         string `json:"name"`
+		Fee          int    `json:"fee"`
+		InsuranceFee string `json:"insurance_fee"`
+		DeliveryType string `json:"delivery_type"`
+		A            string `json:"a"`
+		Dt           string `json:"dt"`
+		Delivery     string `json:"delivery"`
+	} `json:"fee"`
 }
 
 type Arith int
@@ -82,6 +92,8 @@ func (t *Arith) Run(data string, result *string) error {
 		*result = PrintOrder(usex)
 	} else if usex.Action == "co" {
 		*result = CancelOrder(usex)
+	} else if usex.Action == "vs" {
+		*result = ViewShipFee(usex)
 	} else { //default
 		*result = c3mcommon.ReturnJsonMessage("-5", "Action not found.", "", "")
 	}
@@ -232,13 +244,14 @@ func SubmitOrder(usex models.UserSession) string {
 		return c3mcommon.ReturnJsonMessage("0", "Submit fail! "+ghtkResp.Message, "", "")
 	}
 	order.ShipmentCode = ghtkResp.Order.Label
-	order.Name = cus.Name
-	order.Email = cus.Email
-	order.City = cus.City
-	order.District = cus.District
-	order.Ward = cus.Ward
-	order.Address = cus.Address
-	order.CusNote = cus.Note
+	order.PartnerShipFee, _ = strconv.Atoi(ghtkResp.Order.Fee)
+	// order.Name = cus.Name
+	// order.Email = cus.Email
+	// order.City = cus.City
+	// order.District = cus.District
+	// order.Ward = cus.Ward
+	// order.Address = cus.Address
+	// order.CusNote = cus.Note
 	rpch.SaveOrder(order)
 	info, _ := json.Marshal(order)
 	return c3mcommon.ReturnJsonMessage("1", "", "success", string(info))
@@ -339,7 +352,6 @@ func CancelOrder(usex models.UserSession) string {
 	if bodystr == "" {
 		return c3mcommon.ReturnJsonMessage("0", "Cancel partner order fail!", "", "")
 	}
-
 	//var dataresp map[string]json.RawMessage
 	err = json.Unmarshal([]byte(bodystr), &ghtkResp)
 	if c3mcommon.CheckError(fmt.Sprintf("pasre json %s error ", bodystr), err) {
@@ -349,6 +361,82 @@ func CancelOrder(usex models.UserSession) string {
 	}
 
 	return c3mcommon.ReturnJsonMessage("1", "", "cancel partner order success", "")
+}
+
+func ViewShipFee(usex models.UserSession) string {
+	var order models.Order
+	err := json.Unmarshal([]byte(usex.Params), &order)
+	if !c3mcommon.CheckError("ord parse json", err) {
+		return c3mcommon.ReturnJsonMessage("0", "ord parse fail", "", "")
+	}
+
+	if len(order.Items) == 0 {
+		return c3mcommon.ReturnJsonMessage("0", "Order Empty!", "", "")
+	}
+
+	if order.City == "" {
+		return c3mcommon.ReturnJsonMessage("0", "City Empty!", "", "")
+	}
+	if order.District == "" {
+		return c3mcommon.ReturnJsonMessage("0", "District Empty!", "", "")
+	}
+
+	//call curl
+
+	totalweight := 0
+	for _, v := range order.Items {
+		totalweight += 150 * v.Num
+	}
+
+	body := bytes.NewReader([]byte(""))
+
+	req, err := http.NewRequest("POST", GHTKApiUrl+"services/shipment/fee", body)
+	if err != nil {
+		// handle err
+	}
+	querystr := req.URL.Query()
+	querystr.Add("pick_province", usex.Shop.Config.Province)
+	querystr.Add("pick_district", usex.Shop.Config.District)
+	querystr.Add("pick_ward", usex.Shop.Config.Ward)
+	querystr.Add("pick_address", usex.Shop.Config.Address)
+	querystr.Add("province", order.City)
+	querystr.Add("district", order.District)
+	querystr.Add("ward", order.Ward)
+	querystr.Add("address", order.Address)
+	querystr.Add("weight", strconv.Itoa(totalweight))
+	req.URL.RawQuery = querystr.Encode()
+
+	os.Setenv("HTTP_PROXY", "http://127.0.0.1:8888")
+
+	req.Header.Set("Token", usex.Shop.Config.GHTKToken)
+	//req.Header.Set("Content-Type", "application/json")
+
+	resp, err := http.DefaultClient.Do(req)
+	if err != nil {
+		// handle err
+	}
+	defer resp.Body.Close()
+
+	bodyresp, _ := ioutil.ReadAll(resp.Body)
+	bodystr := string(bodyresp)
+
+	var ghtkResp GhtkResp
+
+	//bodystr := `{"success":true,"message":"test","order":{"partner_id":"5a5f04ba50254980160008a0mAH","label":"S264232.MN1.B5.47744801","area":"3","fee":"45000","insurance_fee":"0","estimated_pick_time":"S\u00e1ng 2018-01-28","estimated_deliver_time":"Chi\u1ec1u 2018-01-29","products":[]}}`
+
+	if bodystr == "" {
+		return c3mcommon.ReturnJsonMessage("0", "Get ship fee fail!", "", "")
+	}
+
+	//var dataresp map[string]json.RawMessage
+	err = json.Unmarshal([]byte(bodystr), &ghtkResp)
+	if c3mcommon.CheckError(fmt.Sprintf("pasre json %s error ", bodystr), err) {
+		if !ghtkResp.Success {
+			return c3mcommon.ReturnJsonMessage("0", "Get ship fee fail! "+ghtkResp.Message, "", "")
+		}
+	}
+
+	return c3mcommon.ReturnJsonMessage("1", "", strconv.Itoa(ghtkResp.Fee.Fee), "")
 }
 
 func main() {
