@@ -2,6 +2,7 @@ package main
 
 import (
 	"bytes"
+	"time"
 
 	"encoding/base64"
 	"encoding/json"
@@ -13,6 +14,7 @@ import (
 	"github.com/tidusant/c3m-common/mystring"
 	rpch "github.com/tidusant/chadmin-repo/cuahang"
 	"github.com/tidusant/chadmin-repo/models"
+	rpsex "github.com/tidusant/chadmin-repo/session"
 
 	"flag"
 	"fmt"
@@ -26,6 +28,30 @@ import (
 const (
 	GHTKApiUrl string = "https://services.giaohangtietkiem.vn/"
 )
+
+var GHTKCode = map[string]string{
+	"-1":  "Hủy Đơn Hàng",
+	"1":   "Chưa Tiếp Nhận",
+	"2":   "Đã tiếp nhận",
+	"3":   "Đã lấy hàng/Đã nhập kho",
+	"4":   "Đã điều phối giao hàng/Đang giao hàng",
+	"5":   "Đã giao hàng/Chưa đối soát",
+	"6":   "Đã đối soát",
+	"7":   "Không lấy được hàng",
+	"8":   "Hoãn lấy hàng",
+	"9":   "Không giao được hàng",
+	"10":  "Delay giao hàng",
+	"11":  "Đã đối soát công nợ trả hàng",
+	"12":  "Đã điều phối lấy hàng/Đang lấy hàng",
+	"20":  "Đang trả hàng",
+	"21":  "Đã trả hàng",
+	"123": "Shipper báo đã lấy hàng",
+	"127": "Shipper báo không lấy được hàng",
+	"128": "Shipper báo delay lấy hàng",
+	"45":  "Shipper báo đã giao hàng",
+	"49":  "Shipper báo không giao được giao hàng",
+	"410": "Shipper báo delay giao hàng",
+}
 
 type GhtkResp struct {
 	Success bool   `json:"success"`
@@ -90,6 +116,8 @@ func (t *Arith) Run(data string, result *string) error {
 		*result = CancelOrder(usex)
 	} else if usex.Action == "vs" {
 		*result = ViewShipFee(usex)
+	} else if usex.Action == "vl" {
+		*result = ViewLog(usex)
 	} else { //default
 		*result = c3mcommon.ReturnJsonMessage("-5", "Action not found.", "", "")
 	}
@@ -433,6 +461,32 @@ func ViewShipFee(usex models.UserSession) string {
 	}
 
 	return c3mcommon.ReturnJsonMessage("1", "", strconv.Itoa(ghtkResp.Fee.Fee), "")
+}
+
+func ViewLog(usex models.UserSession) string {
+
+	//call curl
+	whs := rpsex.GetWhookByLabel(usex.Params)
+	var args struct {
+		LabelID    string `json:"label_id"`
+		StatusID   string `json:"status_id"`
+		PartnerID  string `json:"partner_id"`
+		ActionTime string `json:"action_time"`
+		ReasonCode string `json:"reason_code"`
+		Reason     string `json:"reason"`
+		Weight     string `json:"weight"`
+		Fee        string `json:"fee"`
+	}
+	logstr := ""
+	for _, v := range whs {
+		json.Unmarshal([]byte(v.Data), &args)
+		if args.StatusID != "" {
+			t, _ := time.Parse(time.RFC3339, args.ActionTime)
+			logstr += "- " + t.Format("2006-01-02 15:04") + ": " + GHTKCode[args.StatusID] + " - " + args.Reason + "<br />"
+		}
+	}
+
+	return c3mcommon.ReturnJsonMessage("1", "", logstr, "")
 }
 
 func main() {
