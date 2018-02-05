@@ -479,20 +479,21 @@ func ViewLog(usex models.UserSession) string {
 		Fee        string `json:"fee"`
 	}
 	var logarr string
+	//var logarr2 []string
 	logarr = `[`
 	for _, v := range whs {
 		json.Unmarshal([]byte(v.Data), &args)
 		if args.StatusID != "" {
 			t, _ := time.Parse(time.RFC3339, args.ActionTime)
-			//logarr = append(logarr, "- "+t.Format("2006-01-02 15:04")+": "+GHTKCode[args.StatusID]+" - "+args.Reason)
-			logarr += `{"time":"` + t.Format("2006-01-02 15:04") + `","log":"` + GHTKCode[args.StatusID] + " - " + args.Reason + `"},`
+			//logarr2 = append(logarr2, "- "+t.Format("2006-01-02 15:04")+": "+GHTKCode[args.StatusID]+" - "+args.Reason)
+			logarr += `{"time":"` + t.Format("2006-01-02 15:04") + `","log":"` + GHTKCode[args.StatusID] + ` - ` + args.Reason + `"},`
 		}
 	}
 	if len(whs) > 0 {
 		logarr = logarr[:len(logarr)-1]
 	}
 	logarr += `]`
-	//logstr, _ := json.Marshal(logarr)
+	//logstr, _ := json.Marshal(logarr2)
 	return c3mcommon.ReturnJsonMessage("1", "", "logstr", logarr)
 }
 

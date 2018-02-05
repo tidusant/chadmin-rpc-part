@@ -5,7 +5,7 @@ d="cuahang"
 u="cuahang"
 p="cuahang1234@"
 [dbsession]
-h="45.117.170.26:27017"
+h="localhost:27017"
 d="session"
 u="sssex"
 p="@234.sex"
