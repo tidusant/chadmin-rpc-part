@@ -269,6 +269,7 @@ func SubmitOrder(usex models.UserSession) string {
 	}
 	order.ShipmentCode = ghtkResp.Order.Label
 	order.PartnerShipFee, _ = strconv.Atoi(ghtkResp.Order.Fee)
+	order.SearchIndex += order.ShipmentCode
 	// order.Name = cus.Name
 	// order.Email = cus.Email
 	// order.City = cus.City
