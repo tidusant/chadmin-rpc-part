@@ -118,7 +118,7 @@ func (t *Arith) Run(data string, result *string) error {
 		*result = ViewShipFee(usex)
 	} else if usex.Action == "vl" {
 		*result = ViewLog(usex)
-	} else {
+	} else { //default
 		*result = c3mcommon.ReturnJsonMessage("-5", "Action not found.", "", "")
 	}
 
