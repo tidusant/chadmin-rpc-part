@@ -467,7 +467,8 @@ func ViewShipFee(usex models.UserSession) string {
 func ViewLog(usex models.UserSession) string {
 
 	//call curl
-	whs := rpsex.GetWhookByLabel(usex.Params)
+	//whs := rpsex.GetWhookByLabel(usex.Params)
+	whs := rpsex.GetWhookByLabel("S70547.SG5.17K.49857769")
 	var args struct {
 		LabelID    string `json:"label_id"`
 		StatusID   string `json:"status_id"`
@@ -482,11 +483,14 @@ func ViewLog(usex models.UserSession) string {
 	//var logarr2 []string
 	logarr = `[`
 	for _, v := range whs {
+		log.Debugf(v.Data)
 		json.Unmarshal([]byte(v.Data), &args)
 		if args.StatusID != "" {
 			t, _ := time.Parse(time.RFC3339, args.ActionTime)
 			//logarr2 = append(logarr2, "- "+t.Format("2006-01-02 15:04")+": "+GHTKCode[args.StatusID]+" - "+args.Reason)
-			logarr += `{"time":"` + t.Format("2006-01-02 15:04") + `","log":"` + GHTKCode[args.StatusID] + ` - ` + args.Reason + `"},`
+			strlog := GHTKCode[args.StatusID] + ` - ` + args.Reason
+			strlog = base64.StdEncoding.EncodeToString([]byte(strlog))
+			logarr += `{"time":"` + t.Format("2006-01-02 15:04") + `","log":"` + strlog + `"},`
 		}
 	}
 	if len(whs) > 0 {
