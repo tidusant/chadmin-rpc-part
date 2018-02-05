@@ -492,8 +492,8 @@ func ViewLog(usex models.UserSession) string {
 		logarr = logarr[:len(logarr)-1]
 	}
 	logarr += `]`
-	logstr, _ := json.Marshal(logarr)
-	return c3mcommon.ReturnJsonMessage("1", "", "logstr", string(logstr))
+	//logstr, _ := json.Marshal(logarr)
+	return c3mcommon.ReturnJsonMessage("1", "", "logstr", logarr)
 }
 
 func main() {
