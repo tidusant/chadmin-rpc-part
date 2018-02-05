@@ -488,7 +488,7 @@ func ViewLog(usex models.UserSession) string {
 		if args.StatusID != "" {
 			t, _ := time.Parse(time.RFC3339, args.ActionTime)
 			//logarr2 = append(logarr2, "- "+t.Format("2006-01-02 15:04")+": "+GHTKCode[args.StatusID]+" - "+args.Reason)
-			strlog := GHTKCode[args.StatusID] + ` \n ` + args.Reason
+			strlog := GHTKCode[args.StatusID] + ` <br /> ` + args.Reason
 			strlog = base64.StdEncoding.EncodeToString([]byte(strlog))
 			logarr += `{"time":"` + t.Format("2006-01-02 15:04") + `","log":"` + strlog + `"},`
 		}
