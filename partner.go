@@ -467,8 +467,8 @@ func ViewShipFee(usex models.UserSession) string {
 func ViewLog(usex models.UserSession) string {
 
 	//call curl
-	//whs := rpsex.GetWhookByLabel(usex.Params)
-	whs := rpsex.GetWhookByLabel("S70547.SG5.17K.49857769")
+	whs := rpsex.GetWhookByLabel(usex.Params)
+	//whs := rpsex.GetWhookByLabel("S70547.SG5.17K.49857769")
 	var args struct {
 		LabelID    string `json:"label_id"`
 		StatusID   string `json:"status_id"`
