@@ -226,7 +226,7 @@ func SubmitOrder(usex models.UserSession) string {
 	}
 	myOrder.Value = 0
 	myOrder.Note = order.Note
-	return c3mcommon.ReturnJsonMessage("0", string(myOrder.PickMoney), "", "")
+	return c3mcommon.ReturnJsonMessage("0", strconv.Itoa(myOrder.PickMoney), "", "")
 	data := Payload{
 		Products: myProds,
 		Order:    myOrder,
