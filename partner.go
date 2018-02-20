@@ -187,8 +187,9 @@ func SubmitOrder(usex models.UserSession) string {
 		IsFreeship    string `json:"is_freeship"`
 		PickDate      string `json:"pick_date"`
 		PickMoney     int    `json:"pick_money"`
-		Note          string `json:"note"`
-		Value         int    `json:"value"`
+
+		Note  string `json:"note"`
+		Value int    `json:"value"`
 	}
 
 	type Payload struct {
@@ -218,10 +219,14 @@ func SubmitOrder(usex models.UserSession) string {
 	myOrder.District = cus.District
 	myOrder.Province = cus.City
 	myOrder.IsFreeship = "1"
+
 	myOrder.PickMoney = order.Total
+	if order.IsPaid {
+		myOrder.PickMoney = 0
+	}
 	myOrder.Value = 0
 	myOrder.Note = order.Note
-
+	return c3mcommon.ReturnJsonMessage("1", "", string(myOrder.PickMoney), "")
 	data := Payload{
 		Products: myProds,
 		Order:    myOrder,
