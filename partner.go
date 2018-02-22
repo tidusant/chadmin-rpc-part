@@ -4,6 +4,8 @@ import (
 	"bytes"
 	"time"
 
+	"github.com/spf13/viper"
+
 	"encoding/base64"
 	"encoding/json"
 	"io/ioutil"
@@ -25,33 +27,32 @@ import (
 	"strings"
 )
 
-const (
-	GHTKApiUrl string = "https://services.giaohangtietkiem.vn/"
+var (
+	GHTKCode = map[string]string{
+		"-1":  "Hủy Đơn Hàng",
+		"1":   "Chưa Tiếp Nhận",
+		"2":   "Đã tiếp nhận",
+		"3":   "Đã lấy hàng/Đã nhập kho",
+		"4":   "Đã điều phối giao hàng/Đang giao hàng",
+		"5":   "Đã giao hàng/Chưa đối soát",
+		"6":   "Đã đối soát",
+		"7":   "Không lấy được hàng",
+		"8":   "Hoãn lấy hàng",
+		"9":   "Không giao được hàng",
+		"10":  "Delay giao hàng",
+		"11":  "Đã đối soát công nợ trả hàng",
+		"12":  "Đã điều phối lấy hàng/Đang lấy hàng",
+		"20":  "Đang trả hàng",
+		"21":  "Đã trả hàng",
+		"123": "Shipper báo đã lấy hàng",
+		"127": "Shipper báo không lấy được hàng",
+		"128": "Shipper báo delay lấy hàng",
+		"45":  "Shipper báo đã giao hàng",
+		"49":  "Shipper báo không giao được giao hàng",
+		"410": "Shipper báo delay giao hàng",
+	}
+	GHTKApiUrl string
 )
-
-var GHTKCode = map[string]string{
-	"-1":  "Hủy Đơn Hàng",
-	"1":   "Chưa Tiếp Nhận",
-	"2":   "Đã tiếp nhận",
-	"3":   "Đã lấy hàng/Đã nhập kho",
-	"4":   "Đã điều phối giao hàng/Đang giao hàng",
-	"5":   "Đã giao hàng/Chưa đối soát",
-	"6":   "Đã đối soát",
-	"7":   "Không lấy được hàng",
-	"8":   "Hoãn lấy hàng",
-	"9":   "Không giao được hàng",
-	"10":  "Delay giao hàng",
-	"11":  "Đã đối soát công nợ trả hàng",
-	"12":  "Đã điều phối lấy hàng/Đang lấy hàng",
-	"20":  "Đang trả hàng",
-	"21":  "Đã trả hàng",
-	"123": "Shipper báo đã lấy hàng",
-	"127": "Shipper báo không lấy được hàng",
-	"128": "Shipper báo delay lấy hàng",
-	"45":  "Shipper báo đã giao hàng",
-	"49":  "Shipper báo không giao được giao hàng",
-	"410": "Shipper báo delay giao hàng",
-}
 
 type GhtkResp struct {
 	Success bool   `json:"success"`
@@ -512,6 +513,9 @@ func main() {
 	flag.IntVar(&port, "port", 9889, "help message for flagname")
 	flag.BoolVar(&debug, "debug", false, "Indicates if debug messages should be printed in log files")
 	flag.Parse()
+
+	//init var
+	GHTKApiUrl = viper.GetString("config.GHTKApiUrl")
 
 	//logLevel := log.DebugLevel
 	if !debug {
