@@ -60,6 +60,9 @@ type GhtkResp struct {
 	Order   struct {
 		PartnerID            string `json:"partner_id"`
 		Label                string `json:"label"`
+		StatusText           string `json:"status_text"`
+		Message              string `json:"message"`
+		Modified             string `json:"modified"`
 		Area                 string `json:"area"`
 		Fee                  string `json:"fee"`
 		InsuranceFee         string `json:"insurance_fee"`
@@ -115,6 +118,8 @@ func (t *Arith) Run(data string, result *string) error {
 		*result = PrintOrder(usex)
 	} else if usex.Action == "co" {
 		*result = CancelOrder(usex)
+	} else if usex.Action == "os" {
+		*result = OrderStatus(usex)
 	} else if usex.Action == "vs" {
 		*result = ViewShipFee(usex)
 	} else if usex.Action == "vl" {
@@ -391,6 +396,66 @@ func CancelOrder(usex models.UserSession) string {
 	}
 
 	return c3mcommon.ReturnJsonMessage("1", "", "cancel partner order success", "")
+}
+
+func OrderStatus(usex models.UserSession) string {
+
+	//default status
+	order := rpch.GetOrderByID(usex.Params, usex.Shop.ID.Hex())
+
+	//validate
+	if order.ID.Hex() == "" {
+		return c3mcommon.ReturnJsonMessage("0", "Order not found!", "", "")
+	}
+	if order.ShipmentCode == "" {
+		return c3mcommon.ReturnJsonMessage("0", "Order Not Submit!", "", "")
+	}
+	//call curl
+
+	body := bytes.NewReader([]byte(""))
+
+	req, err := http.NewRequest("POST", GHTKApiUrl+"services/shipment/v2/"+order.ShipmentCode, body)
+	if err != nil {
+		// handle err
+	}
+	//os.Setenv("HTTP_PROXY", "http://127.0.0.1:8888")
+
+	req.Header.Set("Token", usex.Shop.Config.GHTKToken)
+	//req.Header.Set("Content-Type", "application/json")
+
+	resp, err := http.DefaultClient.Do(req)
+	if err != nil {
+		// handle err
+	}
+	defer resp.Body.Close()
+
+	bodyresp, _ := ioutil.ReadAll(resp.Body)
+	bodystr := string(bodyresp)
+
+	var ghtkResp GhtkResp
+
+	//bodystr := `{"success":true,"message":"test","order":{"partner_id":"5a5f04ba50254980160008a0mAH","label":"S264232.MN1.B5.47744801","area":"3","fee":"45000","insurance_fee":"0","estimated_pick_time":"S\u00e1ng 2018-01-28","estimated_deliver_time":"Chi\u1ec1u 2018-01-29","products":[]}}`
+
+	if bodystr == "" {
+		return c3mcommon.ReturnJsonMessage("0", " partner order status fail!", "", "")
+	}
+	//var dataresp map[string]json.RawMessage
+	err = json.Unmarshal([]byte(bodystr), &ghtkResp)
+	if c3mcommon.CheckError(fmt.Sprintf("pasre json %s error ", bodystr), err) {
+		if !ghtkResp.Success {
+			return c3mcommon.ReturnJsonMessage("0", " partner order status fail! "+ghtkResp.Message, "", "")
+		}
+	}
+	var logarr string
+	//var logarr2 []string
+	logarr = `[`
+	strlog := ghtkResp.Order.StatusText + ` <br /> ` + ghtkResp.Order.Message
+	strlog = base64.StdEncoding.EncodeToString([]byte(strlog))
+	t, _ := time.Parse(time.RFC3339, ghtkResp.Order.Modified)
+	logarr += `{"time":"` + t.Format("2006-01-02 15:04") + `","log":"` + strlog + `"}`
+	logarr += `]`
+	//logstr, _ := json.Marshal(logarr2)
+	return c3mcommon.ReturnJsonMessage("1", "", "logstr", logarr)
 }
 
 func ViewShipFee(usex models.UserSession) string {
