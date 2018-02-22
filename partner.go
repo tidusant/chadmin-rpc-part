@@ -443,8 +443,8 @@ func OrderStatus(usex models.UserSession) string {
 	logarr = `[`
 	strlog := ghtkResp.Order.StatusText + ` <br /> ` + ghtkResp.Order.Message
 	strlog = base64.StdEncoding.EncodeToString([]byte(strlog))
-	t, _ := time.Parse(time.RFC3339, ghtkResp.Order.Modified)
-	logarr += `{"time":"` + t.Format("2006-01-02 15:04") + `","log":"` + strlog + `"}`
+	//t, _ := time.Parse(time.RFC3339, ghtkResp.Order.Modified)
+	logarr += `{"time":"` + ghtkResp.Order.Modified + `","log":"` + strlog + `"}`
 	logarr += `]`
 	//logstr, _ := json.Marshal(logarr2)
 	return c3mcommon.ReturnJsonMessage("1", "", "logstr", logarr)
