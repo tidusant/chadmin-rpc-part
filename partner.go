@@ -401,20 +401,12 @@ func CancelOrder(usex models.UserSession) string {
 func OrderStatus(usex models.UserSession) string {
 
 	//default status
-	order := rpch.GetOrderByID(usex.Params, usex.Shop.ID.Hex())
 
-	//validate
-	if order.ID.Hex() == "" {
-		return c3mcommon.ReturnJsonMessage("0", "Order not found!", "", "")
-	}
-	if order.ShipmentCode == "" {
-		return c3mcommon.ReturnJsonMessage("0", "Order Not Submit!", "", "")
-	}
 	//call curl
 
 	body := bytes.NewReader([]byte(""))
 
-	req, err := http.NewRequest("POST", GHTKApiUrl+"services/shipment/v2/"+order.ShipmentCode, body)
+	req, err := http.NewRequest("POST", GHTKApiUrl+"services/shipment/v2/"+usex.Params, body)
 	if err != nil {
 		// handle err
 	}
