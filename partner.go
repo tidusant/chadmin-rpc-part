@@ -244,7 +244,6 @@ func SubmitOrder(usex models.UserSession) string {
 		// handle err
 	}
 	//os.Setenv("HTTP_PROXY", "http://127.0.0.1:8888")
-
 	req.Header.Set("Token", usex.Shop.Config.GHTKToken)
 	req.Header.Set("Content-Type", "application/json")
 
