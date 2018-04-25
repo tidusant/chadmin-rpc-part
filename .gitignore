@@ -5,3 +5,5 @@ logs
 *.exe
 debug
 *.exe~
+config.toml
+*.toml

@@ -12,7 +12,6 @@ import (
 
 	"github.com/tidusant/c3m-common/c3mcommon"
 	"github.com/tidusant/c3m-common/log"
-	"github.com/tidusant/c3m-common/lzjs"
 	"github.com/tidusant/c3m-common/mystring"
 	rpch "github.com/tidusant/chadmin-repo/cuahang"
 	"github.com/tidusant/chadmin-repo/models"
@@ -202,13 +201,27 @@ func SubmitOrder(usex models.UserSession) string {
 		Products []Product `json:"products"`
 		Order    OrderInfo `json:"order"`
 	}
-	var myProds []Product
-	for _, v := range order.Items {
-		title, _ := lzjs.DecompressFromBase64(v.Title)
 
-		prod := Product{title, 0.15 * float64(v.Num), v.Num}
-		myProds = append(myProds, prod)
+	catitem := make(map[string]Product)
+	for _, v := range order.Items {
+
+		var prodord Product
+		if _, ok := catitem[v.CatName]; ok {
+			prodord = catitem[v.CatName]
+			prodord.Quantity += v.Num
+		} else {
+			prodord.Name = v.CatName
+			prodord.Quantity = v.Num
+		}
+		prodord.Weight = 0.15 * float64(prodord.Quantity)
+		catitem[v.CatName] = prodord
 	}
+
+	var myProds []Product
+	for _, v := range catitem {
+		myProds = append(myProds, v)
+	}
+	log.Debugf("myProds:%v", myProds)
 	var myOrder OrderInfo
 	myOrder.ID = mystring.RandString(8)
 	myOrder.PickName = usex.Shop.Name
@@ -252,14 +265,15 @@ func SubmitOrder(usex models.UserSession) string {
 	req.Header.Set("Token", usex.Shop.Config.GHTKToken)
 	req.Header.Set("Content-Type", "application/json")
 
-	resp, err := http.DefaultClient.Do(req)
-	if err != nil {
-		// handle err
-	}
-	defer resp.Body.Close()
+	// resp, err := http.DefaultClient.Do(req)
+	// if err != nil {
+	// 	// handle err
+	// }
+	// defer resp.Body.Close()
 
-	bodyresp, _ := ioutil.ReadAll(resp.Body)
-	bodystr := string(bodyresp)
+	// bodyresp, _ := ioutil.ReadAll(resp.Body)
+	// bodystr := string(bodyresp)
+	bodystr := ""
 
 	var ghtkResp GhtkResp
 
