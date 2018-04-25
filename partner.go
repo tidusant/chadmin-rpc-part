@@ -265,15 +265,14 @@ func SubmitOrder(usex models.UserSession) string {
 	req.Header.Set("Token", usex.Shop.Config.GHTKToken)
 	req.Header.Set("Content-Type", "application/json")
 
-	// resp, err := http.DefaultClient.Do(req)
-	// if err != nil {
-	// 	// handle err
-	// }
-	// defer resp.Body.Close()
+	resp, err := http.DefaultClient.Do(req)
+	if err != nil {
+		// handle err
+	}
+	defer resp.Body.Close()
 
-	// bodyresp, _ := ioutil.ReadAll(resp.Body)
-	// bodystr := string(bodyresp)
-	bodystr := ""
+	bodyresp, _ := ioutil.ReadAll(resp.Body)
+	bodystr := string(bodyresp)
 
 	var ghtkResp GhtkResp
 
