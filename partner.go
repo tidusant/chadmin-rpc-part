@@ -12,6 +12,7 @@ import (
 
 	"github.com/tidusant/c3m-common/c3mcommon"
 	"github.com/tidusant/c3m-common/log"
+	"github.com/tidusant/c3m-common/lzjs"
 	"github.com/tidusant/c3m-common/mystring"
 	rpch "github.com/tidusant/chadmin-repo/cuahang"
 	"github.com/tidusant/chadmin-repo/models"
@@ -201,27 +202,34 @@ func SubmitOrder(usex models.UserSession) string {
 		Products []Product `json:"products"`
 		Order    OrderInfo `json:"order"`
 	}
-
-	catitem := make(map[string]Product)
-	for _, v := range order.Items {
-
-		var prodord Product
-		if _, ok := catitem[v.CatName]; ok {
-			prodord = catitem[v.CatName]
-			prodord.Quantity += v.Num
-		} else {
-			prodord.Name = v.CatName
-			prodord.Quantity = v.Num
-		}
-		prodord.Weight = 0.15 * float64(prodord.Quantity)
-		catitem[v.CatName] = prodord
-	}
-
 	var myProds []Product
-	for _, v := range catitem {
-		myProds = append(myProds, v)
+	for _, v := range order.Items {
+		title, _ := lzjs.DecompressFromBase64(v.Title)
+
+		prod := Product{title, 0.15 * float64(v.Num), v.Num}
+		myProds = append(myProds, prod)
 	}
-	log.Debugf("myProds:%v", myProds)
+
+	// catitem := make(map[string]Product)
+	// for _, v := range order.Items {
+
+	// 	var prodord Product
+	// 	if _, ok := catitem[v.CatName]; ok {
+	// 		prodord = catitem[v.CatName]
+	// 		prodord.Quantity += v.Num
+	// 	} else {
+	// 		prodord.Name = v.CatName
+	// 		prodord.Quantity = v.Num
+	// 	}
+	// 	prodord.Weight = 0.15 * float64(prodord.Quantity)
+	// 	catitem[v.CatName] = prodord
+	// }
+
+	// var myProds []Product
+	// for _, v := range catitem {
+	// 	myProds = append(myProds, v)
+	// }
+	// log.Debugf("myProds:%v", myProds)
 	var myOrder OrderInfo
 	myOrder.ID = mystring.RandString(8)
 	myOrder.PickName = usex.Shop.Name
