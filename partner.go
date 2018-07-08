@@ -251,7 +251,7 @@ func SubmitOrder(usex models.UserSession) string {
 	if order.IsPaid {
 		myOrder.PickMoney = 0
 	}
-	myOrder.Value = 0
+	myOrder.Value = order.Total
 	myOrder.Note = order.Note
 	//return c3mcommon.ReturnJsonMessage("0", strconv.Itoa(myOrder.PickMoney), "", "")
 	data := Payload{
